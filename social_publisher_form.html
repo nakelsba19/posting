@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Publisher — Publier sur tous vos réseaux</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1c1c28;
+    --border: rgba(255,255,255,0.07);
+    --accent-fb: #1877F2;
+    --accent-ig: #E1306C;
+    --accent-li: #0A66C2;
+    --accent-main: #7C5CFC;
+    --accent-glow: rgba(124, 92, 252, 0.3);
+    --text: #f0f0f8;
+    --text-muted: #6b6b80;
+    --text-dim: #3a3a50;
+    --success: #22c55e;
+    --error: #ef4444;
+    --radius: 16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background ambient */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% -10%, rgba(124,92,252,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(225,48,108,0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+  .logo-pill span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-main); animation: pulse 2s infinite; }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 6vw, 52px);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    margin-bottom: 14px;
+  }
+  h1 em { font-style: normal; color: var(--accent-main); }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 16px;
+    font-weight: 300;
+    max-width: 420px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Platform selector */
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  .platforms-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .platform-btn {
+    position: relative;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    user-select: none;
+    overflow: hidden;
+  }
+  .platform-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 13px;
+  }
+  .platform-btn.fb::before { background: radial-gradient(circle at 50% 0%, rgba(24,119,242,0.15), transparent 70%); }
+  .platform-btn.ig::before { background: radial-gradient(circle at 50% 0%, rgba(225,48,108,0.15), transparent 70%); }
+  .platform-btn.li::before { background: radial-gradient(circle at 50% 0%, rgba(10,102,194,0.15), transparent 70%); }
+
+  .platform-btn.active { border-color: transparent; }
+  .platform-btn.active::before { opacity: 1; }
+  .platform-btn.fb.active { border-color: rgba(24,119,242,0.5); box-shadow: 0 0 0 1px rgba(24,119,242,0.2), 0 4px 20px rgba(24,119,242,0.12); }
+  .platform-btn.ig.active { border-color: rgba(225,48,108,0.5); box-shadow: 0 0 0 1px rgba(225,48,108,0.2), 0 4px 20px rgba(225,48,108,0.12); }
+  .platform-btn.li.active { border-color: rgba(10,102,194,0.5); box-shadow: 0 0 0 1px rgba(10,102,194,0.2), 0 4px 20px rgba(10,102,194,0.12); }
+
+  .platform-btn:hover { transform: translateY(-2px); }
+
+  .platform-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    font-size: 20px;
+    transition: transform 0.2s;
+  }
+  .platform-btn:hover .platform-icon { transform: scale(1.1); }
+  .fb .platform-icon { background: rgba(24,119,242,0.15); }
+  .ig .platform-icon { background: rgba(225,48,108,0.15); }
+  .li .platform-icon { background: rgba(10,102,194,0.15); }
+
+  .platform-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    display: block;
+  }
+  .platform-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--text-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all 0.2s;
+    background: transparent;
+  }
+  .platform-btn.active .platform-check {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+  .fb.active .platform-check { background: var(--accent-fb); border-color: var(--accent-fb); }
+  .ig.active .platform-check { background: var(--accent-ig); border-color: var(--accent-ig); }
+  .li.active .platform-check { background: var(--accent-li); border-color: var(--accent-li); }
+
+  /* Form card */
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .form-group { margin-bottom: 24px; }
+  .form-group:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+  }
+  label span { color: var(--text-dim); font-weight: 400; margin-left: 4px; }
+
+  textarea, input[type="text"], input[type="url"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    padding: 14px 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    resize: none;
+  }
+  textarea:focus, input:focus {
+    border-color: rgba(124,92,252,0.5);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  textarea::placeholder, input::placeholder { color: var(--text-dim); }
+  textarea { min-height: 130px; line-height: 1.6; }
+
+  .char-count {
+    text-align: right;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+  .char-count.warn { color: #f59e0b; }
+  .char-count.over { color: var(--error); }
+
+  /* Tabs for per-platform messages */
+  .tabs-nav {
+    display: flex;
+    gap: 4px;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 12px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  .tab-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* Media upload */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    background: var(--surface2);
+    overflow: hidden;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: rgba(124,92,252,0.5);
+    background: rgba(124,92,252,0.05);
+  }
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .upload-icon { font-size: 32px; margin-bottom: 10px; }
+  .upload-text { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+  .upload-text strong { color: var(--accent-main); }
+  .upload-hint { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
+
+  .file-preview {
+    display: none;
+    gap: 12px;
+    align-items: center;
+    padding: 16px;
+    background: var(--surface2);
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+  }
+  .file-preview.show { display: flex; }
+  .preview-thumb {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .preview-thumb img, .preview-thumb video { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+  .preview-info { flex: 1; min-width: 0; }
+  .preview-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .preview-size { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+  .preview-remove {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(239,68,68,0.1);
+    border: none;
+    color: var(--error);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: background 0.2s;
+  }
+  .preview-remove:hover { background: rgba(239,68,68,0.2); }
+
+  /* Hashtags */
+  .hashtag-input-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    min-height: 48px;
+    cursor: text;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .hashtag-input-wrap:focus-within {
+    border-color: rgba(124,92,252,0.5);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .hashtag-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(124,92,252,0.15);
+    border: 1px solid rgba(124,92,252,0.3);
+    color: #a78bfa;
+    border-radius: 6px;
+    padding: 3px 10px 3px 8px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .hashtag-tag button { background: none; border: none; color: inherit; cursor: pointer; font-size: 14px; line-height: 1; padding: 0; opacity: 0.6; }
+  .hashtag-tag button:hover { opacity: 1; }
+  .hashtag-raw-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  /* Schedule */
+  input[type="datetime-local"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    padding: 14px 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    color-scheme: dark;
+  }
+  input[type="datetime-local"]:focus {
+    border-color: rgba(124,92,252,0.5);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  /* Settings row */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-info { }
+  .toggle-title { font-size: 14px; font-weight: 500; }
+  .toggle-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .toggle {
+    position: relative;
+    width: 42px; height: 24px;
+    background: var(--surface2);
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    transition: all 0.2s;
+  }
+  .toggle.on { background: var(--accent-main); border-color: var(--accent-main); }
+  .toggle.on::after { left: 21px; background: white; }
+
+  /* n8n URL config */
+  .config-bar {
+    background: rgba(124,92,252,0.06);
+    border: 1px solid rgba(124,92,252,0.15);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.6s 0.15s ease both;
+  }
+  .config-bar label { color: #a78bfa; }
+
+  /* Submit button */
+  .submit-wrap {
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .btn-publish {
+    width: 100%;
+    background: var(--accent-main);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 18px 32px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-publish::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+  }
+  .btn-publish:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,92,252,0.4); }
+  .btn-publish:active { transform: translateY(0); }
+  .btn-publish:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* Status messages */
+  .status-box {
+    display: none;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-top: 16px;
+    animation: fadeUp 0.3s ease both;
+  }
+  .status-box.success { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); }
+  .status-box.error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); }
+  .status-box.loading { background: rgba(124,92,252,0.08); border: 1px solid rgba(124,92,252,0.2); }
+  .status-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .status-box.success .status-title { color: var(--success); }
+  .status-box.error .status-title { color: var(--error); }
+  .status-box.loading .status-title { color: var(--accent-main); }
+  .status-list { list-style: none; }
+  .status-list li { font-size: 13px; color: var(--text-muted); padding: 3px 0; display: flex; align-items: center; gap: 8px; }
+
+  /* Spinner */
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-dim);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 8px 0 16px;
+  }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Animations */
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  @media (max-width: 480px) {
+    .form-card { padding: 24px 20px; }
+    .platforms-grid { gap: 8px; }
+    .platform-btn { padding: 14px 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="logo-pill"><span></span> Automatisation n8n</div>
+    <h1>Publiez sur tous<br>vos <em>réseaux</em> d'un coup</h1>
+    <p class="subtitle">Rédigez votre contenu, uploadez votre média et diffusez sur Facebook, Instagram & LinkedIn en un clic.</p>
+  </header>
+
+  <!-- n8n Webhook URL Config -->
+  <div class="config-bar">
+    <div class="form-group" style="margin-bottom:0">
+      <label>⚡ URL Webhook n8n</label>
+      <input type="url" id="webhookUrl" placeholder="https://votre-n8n.com/webhook/social-media-publish" value="">
+    </div>
+  </div>
+
+  <!-- Platform selector -->
+  <div style="animation: fadeUp 0.6s 0.05s ease both;">
+    <div class="section-label">Plateformes cibles</div>
+    <div class="platforms-grid">
+      <div class="platform-btn fb active" onclick="togglePlatform(this, 'facebook')">
+        <div class="platform-check">✓</div>
+        <div class="platform-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </div>
+        <span class="platform-name">Facebook</span>
+      </div>
+      <div class="platform-btn ig active" onclick="togglePlatform(this, 'instagram')">
+        <div class="platform-check">✓</div>
+        <div class="platform-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#E1306C"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </div>
+        <span class="platform-name">Instagram</span>
+      </div>
+      <div class="platform-btn li active" onclick="togglePlatform(this, 'linkedin')">
+        <div class="platform-check">✓</div>
+        <div class="platform-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </div>
+        <span class="platform-name">LinkedIn</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main form -->
+  <div class="form-card">
+
+    <!-- Message principal -->
+    <div class="form-group">
+      <label>Message principal <span>(apparaît sur toutes les plateformes sélectionnées)</span></label>
+      <textarea id="mainMessage" placeholder="Rédigez votre publication ici... ✨&#10;&#10;Partagez votre actualité, une promotion, un article..." oninput="updateCharCount(this, 'mainCount')"></textarea>
+      <div class="char-count" id="mainCount">0 / 3000</div>
+    </div>
+
+    <!-- Messages par plateforme -->
+    <div class="form-group">
+      <label>Messages personnalisés <span>(optionnel — surcharge le message principal)</span></label>
+      <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab(this, 'tab-fb')">📘 Facebook</button>
+        <button class="tab-btn" onclick="switchTab(this, 'tab-ig')">📸 Instagram</button>
+        <button class="tab-btn" onclick="switchTab(this, 'tab-li')">💼 LinkedIn</button>
+      </div>
+      <div id="tab-fb" class="tab-pane active">
+        <textarea id="fbMessage" placeholder="Texte spécifique Facebook... (laisser vide pour utiliser le message principal)" style="min-height:90px" oninput="updateCharCount(this, 'fbCount')"></textarea>
+        <div class="char-count" id="fbCount">0 / 63206</div>
+      </div>
+      <div id="tab-ig" class="tab-pane">
+        <textarea id="igMessage" placeholder="Texte spécifique Instagram... (max 2200 caractères recommandés)" style="min-height:90px" oninput="updateCharCount(this, 'igCount', 2200)"></textarea>
+        <div class="char-count" id="igCount">0 / 2200</div>
+      </div>
+      <div id="tab-li" class="tab-pane">
+        <textarea id="liMessage" placeholder="Texte spécifique LinkedIn... (max 3000 caractères)" style="min-height:90px" oninput="updateCharCount(this, 'liCount', 3000)"></textarea>
+        <div class="char-count" id="liCount">0 / 3000</div>
+      </div>
+    </div>
+
+    <!-- Media upload -->
+    <div class="form-group">
+      <label>Média <span>(image ou vidéo)</span></label>
+      <div class="upload-zone" id="dropZone">
+        <input type="file" id="mediaFile" accept="image/*,video/*" onchange="handleFileSelect(this)">
+        <div class="upload-icon">🖼️</div>
+        <div class="upload-text"><strong>Cliquez</strong> ou glissez un fichier ici</div>
+        <div class="upload-hint">JPG, PNG, GIF, MP4, MOV · Max 100 MB</div>
+      </div>
+      <div class="file-preview" id="filePreview">
+        <div class="preview-thumb" id="previewThumb">📎</div>
+        <div class="preview-info">
+          <div class="preview-name" id="previewName">—</div>
+          <div class="preview-size" id="previewSize">—</div>
+        </div>
+        <button class="preview-remove" onclick="removeFile()" title="Supprimer">✕</button>
+      </div>
+    </div>
+
+    <!-- Lien -->
+    <div class="form-group">
+      <label>Lien <span>(optionnel)</span></label>
+      <input type="url" id="linkUrl" placeholder="https://votre-site.com/article">
+    </div>
+
+    <!-- Hashtags -->
+    <div class="form-group">
+      <label>Hashtags <span>(tapez et appuyez sur Entrée ou Espace)</span></label>
+      <div class="hashtag-input-wrap" id="hashtagWrap" onclick="focusHashtagInput()">
+        <input class="hashtag-raw-input" id="hashtagInput" type="text" placeholder="#marketing #automation ..." onkeydown="handleHashtagKey(event)" oninput="handleHashtagInput(this)">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Options -->
+  <div class="form-card" style="animation: fadeUp 0.6s 0.25s ease both;">
+    <div class="section-label" style="margin-bottom:4px">Options avancées</div>
+
+    <!-- Planification -->
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-title">⏰ Planifier la publication</div>
+        <div class="toggle-desc">Définir une date et heure de publication</div>
+      </div>
+      <div class="toggle" id="scheduleToggle" onclick="toggleSchedule()"></div>
+    </div>
+    <div id="schedulePicker" style="display:none; padding: 12px 0 8px;">
+      <input type="datetime-local" id="scheduledTime">
+    </div>
+
+    <!-- Format image -->
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-title">📤 Envoyer le fichier en base64</div>
+        <div class="toggle-desc">Inclure le média directement dans la requête n8n</div>
+      </div>
+      <div class="toggle on" id="base64Toggle" onclick="toggleOption(this)"></div>
+    </div>
+
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-wrap">
+    <button class="btn-publish" id="publishBtn" onclick="publishPost()">
+      <span>🚀</span>
+      <span id="btnText">Publier maintenant</span>
+    </button>
+
+    <!-- Status -->
+    <div class="status-box" id="statusBox">
+      <div class="status-title" id="statusTitle"></div>
+      <ul class="status-list" id="statusList"></ul>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────
+const selectedPlatforms = new Set(['facebook', 'instagram', 'linkedin']);
+const hashtags = [];
+let mediaFile = null;
+let useBase64 = true;
+let scheduleEnabled = false;
+
+// ─── Platform toggle ─────────────────────────────────────
+function togglePlatform(el, platform) {
+  if (selectedPlatforms.has(platform)) {
+    if (selectedPlatforms.size === 1) return; // au moins une
+    selectedPlatforms.delete(platform);
+    el.classList.remove('active');
+  } else {
+    selectedPlatforms.add(platform);
+    el.classList.add('active');
+  }
+}
+
+// ─── Char counter ─────────────────────────────────────────
+function updateCharCount(el, countId, max = 3000) {
+  const n = el.value.length;
+  const div = document.getElementById(countId);
+  div.textContent = `${n} / ${max.toLocaleString()}`;
+  div.className = 'char-count' + (n > max ? ' over' : n > max * 0.85 ? ' warn' : '');
+}
+
+// ─── Tabs ─────────────────────────────────────────────────
+function switchTab(btn, paneId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(paneId).classList.add('active');
+}
+
+// ─── File upload ──────────────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f) processFile(f);
+});
+
+function handleFileSelect(input) {
+  if (input.files[0]) processFile(input.files[0]);
+}
+
+function processFile(file) {
+  mediaFile = file;
+  dropZone.style.display = 'none';
+  const preview = document.getElementById('filePreview');
+  preview.classList.add('show');
+  document.getElementById('previewName').textContent = file.name;
+  document.getElementById('previewSize').textContent = formatBytes(file.size);
+  const thumb = document.getElementById('previewThumb');
+  if (file.type.startsWith('image/')) {
+    const url = URL.createObjectURL(file);
+    thumb.innerHTML = `<img src="${url}" alt="preview">`;
+  } else if (file.type.startsWith('video/')) {
+    const url = URL.createObjectURL(file);
+    thumb.innerHTML = `<video src="${url}"></video>`;
+  } else {
+    thumb.textContent = '📎';
+  }
+}
+
+function removeFile() {
+  mediaFile = null;
+  document.getElementById('mediaFile').value = '';
+  document.getElementById('filePreview').classList.remove('show');
+  document.getElementById('dropZone').style.display = '';
+}
+
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+
+// ─── Hashtags ─────────────────────────────────────────────
+function focusHashtagInput() {
+  document.getElementById('hashtagInput').focus();
+}
+
+function handleHashtagInput(input) {
+  // Auto-add on space
+  if (input.value.endsWith(' ') && input.value.trim()) {
+    addHashtag(input.value.trim());
+    input.value = '';
+  }
+}
+
+function handleHashtagKey(e) {
+  const input = e.target;
+  if ((e.key === 'Enter' || e.key === ',') && input.value.trim()) {
+    e.preventDefault();
+    addHashtag(input.value.trim());
+    input.value = '';
+  } else if (e.key === 'Backspace' && !input.value && hashtags.length) {
+    removeHashtag(hashtags.length - 1);
+  }
+}
+
+function addHashtag(tag) {
+  const clean = tag.startsWith('#') ? tag : '#' + tag;
+  if (!hashtags.includes(clean) && clean.length > 1) {
+    hashtags.push(clean);
+    renderHashtags();
+  }
+}
+
+function removeHashtag(i) {
+  hashtags.splice(i, 1);
+  renderHashtags();
+}
+
+function renderHashtags() {
+  const wrap = document.getElementById('hashtagWrap');
+  const input = document.getElementById('hashtagInput');
+  wrap.innerHTML = '';
+  hashtags.forEach((tag, i) => {
+    const el = document.createElement('span');
+    el.className = 'hashtag-tag';
+    el.innerHTML = `${tag} <button onclick="removeHashtag(${i})">✕</button>`;
+    wrap.appendChild(el);
+  });
+  wrap.appendChild(input);
+  input.focus();
+}
+
+// ─── Options ──────────────────────────────────────────────
+function toggleSchedule() {
+  scheduleEnabled = !scheduleEnabled;
+  const t = document.getElementById('scheduleToggle');
+  const p = document.getElementById('schedulePicker');
+  scheduleEnabled ? t.classList.add('on') : t.classList.remove('on');
+  p.style.display = scheduleEnabled ? 'block' : 'none';
+}
+
+function toggleOption(el) {
+  el.classList.toggle('on');
+  if (el.id === 'base64Toggle') useBase64 = el.classList.contains('on');
+}
+
+// ─── Status helper ────────────────────────────────────────
+function showStatus(type, title, items = []) {
+  const box = document.getElementById('statusBox');
+  box.className = 'status-box ' + type;
+  box.style.display = 'block';
+  document.getElementById('statusTitle').textContent = title;
+  const list = document.getElementById('statusList');
+  list.innerHTML = items.map(i => `<li>${i}</li>`).join('');
+}
+
+// ─── Publish ──────────────────────────────────────────────
+async function publishPost() {
+  const webhookUrl = document.getElementById('webhookUrl').value.trim();
+  const message = document.getElementById('mainMessage').value.trim();
+
+  if (!webhookUrl) {
+    showStatus('error', '⚠️ URL Webhook manquante', ['Renseignez l\'URL de votre webhook n8n en haut de la page.']);
+    return;
+  }
+  if (!message) {
+    showStatus('error', '⚠️ Message requis', ['Rédigez un message avant de publier.']);
+    return;
+  }
+  if (selectedPlatforms.size === 0) {
+    showStatus('error', '⚠️ Aucune plateforme', ['Sélectionnez au moins une plateforme.']);
+    return;
+  }
+
+  const btn = document.getElementById('publishBtn');
+  btn.disabled = true;
+  document.getElementById('btnText').textContent = 'Publication en cours...';
+  btn.querySelector('span').textContent = '';
+  btn.insertAdjacentHTML('afterbegin', '<div class="spinner"></div>');
+
+  showStatus('loading', '⏳ Publication en cours...', [
+    ...Array.from(selectedPlatforms).map(p => `📤 Envoi sur ${p.charAt(0).toUpperCase()+p.slice(1)}...`)
+  ]);
+
+  try {
+    let payload;
+    let options = { method: 'POST' };
+
+    if (mediaFile && useBase64) {
+      // Encode file as base64
+      const base64 = await fileToBase64(mediaFile);
+      payload = {
+        message,
+        platforms: Array.from(selectedPlatforms),
+        facebook_message: document.getElementById('fbMessage').value.trim() || undefined,
+        instagram_message: document.getElementById('igMessage').value.trim() || undefined,
+        linkedin_message: document.getElementById('liMessage').value.trim() || undefined,
+        link: document.getElementById('linkUrl').value.trim() || undefined,
+        hashtags,
+        scheduled_time: scheduleEnabled ? document.getElementById('scheduledTime').value || undefined : undefined,
+        media: {
+          filename: mediaFile.name,
+          type: mediaFile.type,
+          size: mediaFile.size,
+          data: base64
+        }
+      };
+      options.headers = { 'Content-Type': 'application/json' };
+      options.body = JSON.stringify(payload);
+    } else if (mediaFile && !useBase64) {
+      // Send as multipart form data
+      const formData = new FormData();
+      formData.append('message', message);
+      formData.append('platforms', JSON.stringify(Array.from(selectedPlatforms)));
+      if (document.getElementById('fbMessage').value.trim()) formData.append('facebook_message', document.getElementById('fbMessage').value.trim());
+      if (document.getElementById('igMessage').value.trim()) formData.append('instagram_message', document.getElementById('igMessage').value.trim());
+      if (document.getElementById('liMessage').value.trim()) formData.append('linkedin_message', document.getElementById('liMessage').value.trim());
+      if (document.getElementById('linkUrl').value.trim()) formData.append('link', document.getElementById('linkUrl').value.trim());
+      formData.append('hashtags', JSON.stringify(hashtags));
+      if (scheduleEnabled && document.getElementById('scheduledTime').value) formData.append('scheduled_time', document.getElementById('scheduledTime').value);
+      formData.append('media', mediaFile, mediaFile.name);
+      options.body = formData;
+    } else {
+      payload = {
+        message,
+        platforms: Array.from(selectedPlatforms),
+        facebook_message: document.getElementById('fbMessage').value.trim() || undefined,
+        instagram_message: document.getElementById('igMessage').value.trim() || undefined,
+        linkedin_message: document.getElementById('liMessage').value.trim() || undefined,
+        link: document.getElementById('linkUrl').value.trim() || undefined,
+        hashtags,
+        scheduled_time: scheduleEnabled ? document.getElementById('scheduledTime').value || undefined : undefined,
+      };
+      options.headers = { 'Content-Type': 'application/json' };
+      options.body = JSON.stringify(payload);
+    }
+
+    const res = await fetch(webhookUrl, options);
+    const data = await res.json().catch(() => ({}));
+
+    if (res.ok) {
+      const published = data.published || [];
+      const errors = data.errors || [];
+      showStatus('success', '✅ Publication réussie !', [
+        ...published.map(p => `✅ ${p.platform} — ID: ${p.post_id || 'OK'}`),
+        ...errors.map(e => `⚠️ ${e.platform}: ${e.error}`)
+      ]);
+    } else {
+      showStatus('error', `❌ Erreur ${res.status}`, [data.message || data.error || 'Vérifiez votre workflow n8n.']);
+    }
+  } catch (err) {
+    showStatus('error', '❌ Erreur de connexion', [err.message, 'Vérifiez que votre serveur n8n est accessible et que l\'URL webhook est correcte.']);
+  } finally {
+    btn.disabled = false;
+    btn.querySelector('.spinner')?.remove();
+    document.getElementById('btnText').textContent = 'Publier maintenant';
+    btn.querySelector('span').textContent = '🚀';
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+</script>
+</body>
+</html>
